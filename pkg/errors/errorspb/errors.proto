@@ -1,0 +1,81 @@
+syntax = "proto3";
+package cockroach.errorspb;
+option go_package = "errorspb";
+
+import "google/protobuf/any.proto";
+import "gogoproto/gogo.proto";
+
+// EncodedError is the wire-encodable representation
+// of an error (or error cause chain).
+message EncodedError {
+  oneof error {
+    // This is used for leaf error objects.
+    EncodedErrorLeaf leaf = 1;
+    // This is used for wrapper errors.
+    EncodedWrapper wrapper = 2;
+  }
+}
+
+// EncodedErrorLeaf is the wire-encodable representation
+// of an error leaf.
+message EncodedErrorLeaf {
+  // The main error message (mandatory), that can be printed to human
+  // users and may contain PII. This contains the value of the leaf
+  // error's Error(), or using a registered encoder.
+  string message = 1;
+
+  // The fully qualified error type name (mandatory), which will
+  // be used to look up a decoding function.
+  // See the RFC on error handling for details.
+  string type_name = 2;
+
+  // The reportable payload (optional), which is as descriptive as
+  // possible but may not contain PII.
+  //
+  // This is extracted automatically using a registered encoder, if
+  // any, or the SafeDetailer interface.
+  repeated string reportable_payload = 3;
+
+  // An arbitrary payload that (presumably) encodes the
+  // native error object. This is also optional.
+  //
+  // This is extracted automatically using a registered encoder, if
+  // any.
+  google.protobuf.Any full_details = 4;
+}
+
+// EncodedWrapper is the wire-encodable representation
+// of an error wrapper.
+message EncodedWrapper {
+  // The cause error. Mandatory.
+  EncodedError cause = 1 [(gogoproto.nullable) = false];
+
+  // The wrapper message prefix (which may be empty). This
+  // isbprinted before the cause's own message when
+  // constructing a full message. This may contain PII.
+  //
+  // This is extracted automatically:
+  //
+  // - for wrappers that have a registered encoder,
+  // - otherwise, when the wrapper's Error() has its cause's Error() as suffix.
+  string message_prefix = 2;
+
+  // The fully qualified error type name (mandatory), which will
+  // be used to look up a decoding function.
+  // See the RFC on error handling for details.
+  string type_name = 3;
+
+  // The reportable payload (optional), which is as descriptive as
+  // possible but may not contain PII.
+  //
+  // This is extracted automatically using a registered encoder, if
+  // any, or the SafeDetailer interface.
+  repeated string reportable_payload = 4;
+
+  // An arbitrary payload that (presumably) encodes the
+  // native wrapper object. This is also optional.
+  //
+  // This is extracted automatically using a registered encoder, if
+  // any.
+  google.protobuf.Any full_details = 5;
+}
