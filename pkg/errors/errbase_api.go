@@ -44,25 +44,28 @@ var GetSafeDetails func(err error) (payload SafeDetailPayload) = errbase.GetSafe
 type SafeDetailPayload = errbase.SafeDetailPayload
 
 // RegisterLeafDecoder forwards a definition.
-var RegisterLeafDecoder func(typeName string, decoder LeafDecoder) = errbase.RegisterLeafDecoder
+var RegisterLeafDecoder func(typeName TypeName, decoder LeafDecoder) = errbase.RegisterLeafDecoder
+
+// TypeName forwards a definition.
+type TypeName = errbase.TypeName
 
 // LeafDecoder forwards a definition.
 type LeafDecoder = errbase.LeafDecoder
 
 // RegisterWrapperDecoder forwards a definition.
-var RegisterWrapperDecoder func(typeName string, decoder WrapperDecoder) = errbase.RegisterWrapperDecoder
+var RegisterWrapperDecoder func(typeName TypeName, decoder WrapperDecoder) = errbase.RegisterWrapperDecoder
 
 // WrapperDecoder forwards a definition.
 type WrapperDecoder = errbase.WrapperDecoder
 
 // RegisterLeafEncoder forwards a definition.
-var RegisterLeafEncoder func(typeName string, encoder LeafEncoder) = errbase.RegisterLeafEncoder
+var RegisterLeafEncoder func(typeName TypeName, encoder LeafEncoder) = errbase.RegisterLeafEncoder
 
 // LeafEncoder forwards a definition.
 type LeafEncoder = errbase.LeafEncoder
 
 // RegisterWrapperEncoder forwards a definition.
-var RegisterWrapperEncoder func(typeName string, encoder WrapperEncoder) = errbase.RegisterWrapperEncoder
+var RegisterWrapperEncoder func(typeName TypeName, encoder WrapperEncoder) = errbase.RegisterWrapperEncoder
 
 // WrapperEncoder forwards a definition.
 type WrapperEncoder = errbase.WrapperEncoder
