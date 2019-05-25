@@ -19,12 +19,12 @@ import (
 	"sort"
 
 	"github.com/cockroachdb/apd"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/constraint"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
@@ -340,7 +340,7 @@ func (c *CustomFuncs) sharedProps(e opt.Expr) *props.Shared {
 	case memo.ScalarPropsExpr:
 		return &t.ScalarProps(c.mem).Shared
 	}
-	panic(pgerror.AssertionFailedf("no logical properties available for node: %v", e))
+	panic(errors.AssertionFailedf("no logical properties available for node: %v", e))
 }
 
 // ----------------------------------------------------------------------
@@ -450,7 +450,7 @@ func (c *CustomFuncs) RemoveFiltersItem(
 			return newFilters
 		}
 	}
-	panic(pgerror.AssertionFailedf("item to remove is not in the list: %v", search))
+	panic(errors.AssertionFailedf("item to remove is not in the list: %v", search))
 }
 
 // ReplaceFiltersItem returns a new list that is a copy of the given list,
@@ -470,7 +470,7 @@ func (c *CustomFuncs) ReplaceFiltersItem(
 			return newFilters
 		}
 	}
-	panic(pgerror.AssertionFailedf("item to replace is not in the list: %v", search))
+	panic(errors.AssertionFailedf("item to replace is not in the list: %v", search))
 }
 
 // FiltersBoundBy returns true if all outer references in any of the filter
@@ -1211,7 +1211,7 @@ func (c *CustomFuncs) CommuteInequality(
 	case opt.LtOp:
 		return c.f.ConstructGt(right, left)
 	}
-	panic(pgerror.AssertionFailedf("called commuteInequality with operator %s", log.Safe(op)))
+	panic(errors.AssertionFailedf("called commuteInequality with operator %s", log.Safe(op)))
 }
 
 // FindRedundantConjunct takes the left and right operands of an Or operator as
@@ -1322,7 +1322,7 @@ func (c *CustomFuncs) extractConjunct(conjunct opt.ScalarExpr, and *memo.AndExpr
 //   (a = x) AND (b = y) AND (c = z)
 func (c *CustomFuncs) NormalizeTupleEquality(left, right memo.ScalarListExpr) opt.ScalarExpr {
 	if len(left) != len(right) {
-		panic(pgerror.AssertionFailedf("tuple length mismatch"))
+		panic(errors.AssertionFailedf("tuple length mismatch"))
 	}
 	if len(left) == 0 {
 		// () = (), which is always true.
@@ -1410,7 +1410,7 @@ func (c *CustomFuncs) IsConstValueEqual(const1, const2 opt.ScalarExpr) bool {
 		datum2 := const2.(*memo.ConstExpr).Value
 		return datum1.Compare(c.f.evalCtx, datum2) == 0
 	default:
-		panic(pgerror.AssertionFailedf("unexpected Op type: %v", log.Safe(op1)))
+		panic(errors.AssertionFailedf("unexpected Op type: %v", log.Safe(op1)))
 	}
 }
 
@@ -1500,7 +1500,7 @@ func (c *CustomFuncs) CastToCollatedString(str opt.ScalarExpr, locale string) op
 	case *tree.DCollatedString:
 		value = t.Contents
 	default:
-		panic(pgerror.AssertionFailedf("unexpected type for COLLATE: %T", log.Safe(str.(*memo.ConstExpr).Value)))
+		panic(errors.AssertionFailedf("unexpected type for COLLATE: %T", log.Safe(str.(*memo.ConstExpr).Value)))
 	}
 
 	return c.f.ConstructConst(tree.NewDCollatedString(value, locale, &c.f.evalCtx.CollationEnv))

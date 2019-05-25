@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/config"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/cat"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
@@ -313,7 +314,7 @@ func (tc *Catalog) ExecuteDDL(sql string) (string, error) {
 	switch stmt.AST.StatementType() {
 	case tree.DDL, tree.RowsAffected:
 	default:
-		return "", pgerror.AssertionFailedf("statement type is not DDL or RowsAffected: %v", log.Safe(stmt.AST.StatementType()))
+		return "", errors.AssertionFailedf("statement type is not DDL or RowsAffected: %v", log.Safe(stmt.AST.StatementType()))
 	}
 
 	switch stmt := stmt.AST.(type) {
@@ -344,7 +345,7 @@ func (tc *Catalog) ExecuteDDL(sql string) (string, error) {
 		return tp.String(), nil
 
 	default:
-		return "", pgerror.AssertionFailedf("unsupported statement: %v", stmt)
+		return "", errors.AssertionFailedf("unsupported statement: %v", stmt)
 	}
 }
 
@@ -781,7 +782,7 @@ func (tc *Column) DatumType() *types.T {
 func (tc *Column) ColTypePrecision() int {
 	if tc.ColType.Family() == types.ArrayFamily {
 		if tc.ColType.ArrayContents().Family() == types.ArrayFamily {
-			panic(pgerror.AssertionFailedf("column type should never be a nested array"))
+			panic(errors.AssertionFailedf("column type should never be a nested array"))
 		}
 		return int(tc.ColType.ArrayContents().Precision())
 	}
@@ -792,7 +793,7 @@ func (tc *Column) ColTypePrecision() int {
 func (tc *Column) ColTypeWidth() int {
 	if tc.ColType.Family() == types.ArrayFamily {
 		if tc.ColType.ArrayContents().Family() == types.ArrayFamily {
-			panic(pgerror.AssertionFailedf("column type should never be a nested array"))
+			panic(errors.AssertionFailedf("column type should never be a nested array"))
 		}
 		return int(tc.ColType.ArrayContents().Width())
 	}
@@ -927,7 +928,7 @@ func (fk *ForeignKeyConstraint) ColumnCount() int {
 // OriginColumnOrdinal is part of the cat.ForeignKeyConstraint interface.
 func (fk *ForeignKeyConstraint) OriginColumnOrdinal(originTable cat.Table, i int) int {
 	if originTable.ID() != fk.originTableID {
-		panic(pgerror.AssertionFailedf(
+		panic(errors.AssertionFailedf(
 			"invalid table %d passed to OriginColumnOrdinal (expected %d)",
 			originTable.ID(), fk.originTableID,
 		))
@@ -939,7 +940,7 @@ func (fk *ForeignKeyConstraint) OriginColumnOrdinal(originTable cat.Table, i int
 // ReferencedColumnOrdinal is part of the cat.ForeignKeyConstraint interface.
 func (fk *ForeignKeyConstraint) ReferencedColumnOrdinal(referencedTable cat.Table, i int) int {
 	if referencedTable.ID() != fk.referencedTableID {
-		panic(pgerror.AssertionFailedf(
+		panic(errors.AssertionFailedf(
 			"invalid table %d passed to ReferencedColumnOrdinal (expected %d)",
 			referencedTable.ID(), fk.referencedTableID,
 		))
